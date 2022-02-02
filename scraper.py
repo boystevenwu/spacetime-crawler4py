@@ -3,6 +3,9 @@ from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 
 
+count = 0
+
+
 def scraper(url, resp):
     links = extract_next_links(url, resp)
     return [link for link in links if is_valid(link)]
@@ -24,7 +27,7 @@ def extract_next_links(url, resp):
 
     # Exit if status code not in 200s
     if not (200 <= resp.status <= 299):
-        return list()
+        return urls
 
     # Parse the resp and extract links
     if resp.raw_response is not None:
@@ -47,34 +50,39 @@ def is_valid(url):
     AVOID_PATHS = ["calendar", "event", "files", "contact"]
     valid_domain = False
     unique_urls = list()
+    global count
 
     try:
-        parsed = urlparse(url)
-        if parsed.scheme not in {"http", "https"}:
-            return False
+        with open('output.txt', 'w') as file:
+            parsed = urlparse(url)
+            if parsed.scheme not in {"http", "https"}:
+                return False
 
-        for domain in DOMAIN_LIST:
-            if domain in parsed.netloc:
-                valid_domain = True
-        for path in AVOID_PATHS:
-            if path in parsed.path:
-                valid_domain = False
+            for domain in DOMAIN_LIST:
+                if domain in parsed.netloc:
+                    valid_domain = True
+            for path in AVOID_PATHS:
+                if path in parsed.path:
+                    valid_domain = False
 
-        if not valid_domain:
-            return valid_domain
+            if not valid_domain:
+                return valid_domain
 
-        if not re.match(
-                r".*\.(css|js|bmp|gif|jpe?g|ico"
-                + r"|png|tiff?|mid|mp2|mp3|mp4"
-                + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
-                + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"
-                + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
-                + r"|epub|dll|cnf|tgz|sha1|txt"
-                + r"|thmx|mso|arff|rtf|jar|csv"
-                + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower()):
-            if (parsed.scheme + parsed.netloc + parsed.path).lower() not in unique_urls:
-                unique_urls.append((parsed.scheme + parsed.netloc + parsed.path).lower())
-                return True
+            if not re.match(
+                    r".*\.(css|js|bmp|gif|jpe?g|ico"
+                    + r"|png|tiff?|mid|mp2|mp3|mp4"
+                    + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
+                    + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"
+                    + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
+                    + r"|epub|dll|cnf|tgz|sha1|txt"
+                    + r"|thmx|mso|arff|rtf|jar|csv"
+                    + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower()):
+                if (parsed.scheme + parsed.netloc + parsed.path).lower() not in unique_urls:
+                    unique_urls.append((parsed.scheme + parsed.netloc + parsed.path).lower())
+                    count += 1
+                    file.write(f"Page Count: {count}")
+
+                    return True
 
         return False
 
