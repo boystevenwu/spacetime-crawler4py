@@ -2,7 +2,6 @@ import re
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 
-
 count = 0
 
 
@@ -50,7 +49,6 @@ def is_valid(url):
     AVOID_PATHS = ["calendar", "event", "files", "contact"]
     valid_domain = False
     unique_urls = list()
-    global count
 
     try:
         with open('output.txt', 'w') as file:
@@ -79,8 +77,10 @@ def is_valid(url):
                     + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower()):
                 if (parsed.scheme + parsed.netloc + parsed.path).lower() not in unique_urls:
                     unique_urls.append((parsed.scheme + parsed.netloc + parsed.path).lower())
-                    count += 1
-                    file.write(f"Page Count: {count}")
+                    is_valid.count += 1
+                    print(is_valid.count)
+                    # Write page count into txt
+                    file.write(f"Page Count: {is_valid.count}")
 
                     return True
 
@@ -89,3 +89,4 @@ def is_valid(url):
     except TypeError:
         print("TypeError for ", parsed)
         raise
+is_valid.count = 0
