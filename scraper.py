@@ -1,6 +1,7 @@
 import re
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
+from utils import robots_txt
 
 count = 0
 unique_urls = list()
@@ -48,22 +49,35 @@ def is_valid(url):
     DOMAIN_LIST = [".ics.uci.edu", ".cs.uci.edu", ".informatics.uci.edu", ".stat.uci.edu",
                    "today.uci.edu/department/information_computer_sciences/"]
     AVOID_PATHS = ["calendar", "event", "files", "contact"]
-    valid_domain = False
+    valid_url = False
 
     try:
         parsed = urlparse(url)
         if parsed.scheme not in {"http", "https"}:
             return False
 
+        # check if domain is inside the url
         for domain in DOMAIN_LIST:
             if domain in parsed.netloc:
-                valid_domain = True
+                valid_url = True
+        # check if dangerous path is inside the url
         for path in AVOID_PATHS:
             if path in parsed.path:
-                valid_domain = False
+                valid_url = False
+        # check if contains a robots.txt
+        if (parsed.path and parsed.fragment and parsed.params and parsed.query) is None:
+            allowed, disallowed = robots_txt.get_robots_txt(parsed.scheme+'://'+parsed.netloc)
+            # check if contains disallowed addr
+            for loc in disallowed:
+                if loc in parsed.geturl():
+                    valid_url = False
+                    # check if contains allowed addr under disallowed
+                    for locc in allowed:
+                        if locc in parsed.geturl():
+                            valid_url = True
 
-        if not valid_domain:
-            return valid_domain
+        if not valid_url:
+            return valid_url
 
         if not re.match(
                 r".*\.(css|js|bmp|gif|jpe?g|ico"
@@ -74,11 +88,11 @@ def is_valid(url):
                 + r"|epub|dll|cnf|tgz|sha1|txt"
                 + r"|thmx|mso|arff|rtf|jar|csv"
                 + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower()):
-            if (parsed.scheme + parsed.netloc + parsed.path).lower() not in unique_urls:
-                unique_urls.append((parsed.scheme + parsed.netloc + parsed.path).lower())
-                print(len(unique_urls))
+            url_body = (parsed.scheme + parsed.netloc + parsed.path).lower()
+            if url_body not in unique_urls:
+                unique_urls.append(url_body)
                 # Write page count into txt
-                with open('output.txt', 'w') as file:
+                with open('unique_page_count.txt', 'w') as file:
                     file.write(f"Page Count: {len(unique_urls)}")
 
                 return True
