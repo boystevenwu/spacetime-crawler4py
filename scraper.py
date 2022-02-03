@@ -51,37 +51,37 @@ def is_valid(url):
     valid_domain = False
 
     try:
-        with open('output.txt', 'w') as file:
-            parsed = urlparse(url)
-            if parsed.scheme not in {"http", "https"}:
-                return False
+        parsed = urlparse(url)
+        if parsed.scheme not in {"http", "https"}:
+            return False
 
-            for domain in DOMAIN_LIST:
-                if domain in parsed.netloc:
-                    valid_domain = True
-            for path in AVOID_PATHS:
-                if path in parsed.path:
-                    valid_domain = False
+        for domain in DOMAIN_LIST:
+            if domain in parsed.netloc:
+                valid_domain = True
+        for path in AVOID_PATHS:
+            if path in parsed.path:
+                valid_domain = False
 
-            if not valid_domain:
-                return valid_domain
+        if not valid_domain:
+            return valid_domain
 
-            if not re.match(
-                    r".*\.(css|js|bmp|gif|jpe?g|ico"
-                    + r"|png|tiff?|mid|mp2|mp3|mp4"
-                    + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
-                    + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"
-                    + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
-                    + r"|epub|dll|cnf|tgz|sha1|txt"
-                    + r"|thmx|mso|arff|rtf|jar|csv"
-                    + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower()):
-                if (parsed.scheme + parsed.netloc + parsed.path).lower() not in unique_urls:
-                    unique_urls.append((parsed.scheme + parsed.netloc + parsed.path).lower())
-                    print(len(unique_urls))
-                    # Write page count into txt
+        if not re.match(
+                r".*\.(css|js|bmp|gif|jpe?g|ico"
+                + r"|png|tiff?|mid|mp2|mp3|mp4"
+                + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
+                + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"
+                + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
+                + r"|epub|dll|cnf|tgz|sha1|txt"
+                + r"|thmx|mso|arff|rtf|jar|csv"
+                + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower()):
+            if (parsed.scheme + parsed.netloc + parsed.path).lower() not in unique_urls:
+                unique_urls.append((parsed.scheme + parsed.netloc + parsed.path).lower())
+                print(len(unique_urls))
+                # Write page count into txt
+                with open('output.txt', 'w') as file:
                     file.write(f"Page Count: {len(unique_urls)}")
 
-                    return True
+                return True
 
         return False
 
