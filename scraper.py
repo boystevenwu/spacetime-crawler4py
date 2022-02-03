@@ -66,13 +66,13 @@ def is_valid(url):
                 valid_url = False
         # check if contains a robots.txt
         if (parsed.path and parsed.fragment and parsed.params and parsed.query) is None:
-            allowed, disallowed = robots_txt.get_robots_txt(parsed.scheme+'://'+parsed.netloc)
+            is_valid.allowed, is_valid.disallowed = robots_txt.get_robots_txt(parsed.scheme+'://'+parsed.netloc)
             # check if contains disallowed addr
-            for loc in disallowed:
+            for loc in is_valid.disallowed:
                 if loc in parsed.geturl():
                     valid_url = False
                     # check if contains allowed addr under disallowed
-                    for locc in allowed:
+                    for locc in is_valid.allowed:
                         if locc in parsed.geturl():
                             valid_url = True
 
@@ -102,3 +102,6 @@ def is_valid(url):
     except TypeError:
         print("TypeError for ", parsed)
         raise
+
+is_valid.allowed = list()
+is_valid.disallowed = list()
