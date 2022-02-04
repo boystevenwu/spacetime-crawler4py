@@ -16,7 +16,8 @@ def scraper(url, resp):
         return list()
 
     links = extract_next_links(url, resp)
-    return [link for link in links if is_valid(link)]
+    #return [link for link in links if is_valid(link)]
+    return links
 
 
 def extract_next_links(url, resp):
@@ -34,7 +35,7 @@ def extract_next_links(url, resp):
     urls = list()
 
     # Parse the resp and extract links
-    if resp.raw_response is not None:
+    if resp.raw_response is not None and is_valid(url): 
         beautiful_soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
         text = beautiful_soup.get_text().lower()
         part_b = token.tokenize(text, url)
