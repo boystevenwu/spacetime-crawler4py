@@ -3,13 +3,13 @@ from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 from utils import robots_txt
 from utils import token
-from collections import defaultdict #ADD
-from utils import SaveSub #ADD
+from collections import defaultdict
+from utils import SaveSub
 
 count = 0
 unique_urls = list()
 part_b_url = ''
-subDomains = defaultdict(int) #ADD
+subDomains = defaultdict(int)
 
 
 def scraper(url, resp):
@@ -40,7 +40,7 @@ def extract_next_links(url, resp):
         beautiful_soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
         text = beautiful_soup.get_text().lower()
         part_b = token.tokenize(text, url)
-        top_fifty = token.computeWordFrequencies(part_b)
+        _ = token.computeWordFrequencies(part_b)
 
         for url in beautiful_soup.find_all('a'):
             if url.get('href') is not None:
@@ -68,27 +68,27 @@ def is_valid(url):
         for domain in DOMAIN_LIST:
             if domain in parsed.netloc:
                 valid_url = True
-                subDomain = parsed.netloc.lower() #ADD
-                if ".ics.uci.edu" in subDomain: #ADD
-                    subDomains[subDomain] += 1 #ADD
-        SaveSub.saveSubdomains(subDomains)#ADD
+                subDomain = parsed.netloc.lower()
+                if ".ics.uci.edu" in subDomain:
+                    subDomains[subDomain] += 1
+        SaveSub.saveSubdomains(subDomains)
         # check if dangerous path is inside the url
         for path in AVOID_PATHS:
             if path in parsed.path:
                 valid_url = False
-        # check if contains a robots.txt
-        # if (parsed.path and parsed.fragment and parsed.params and parsed.query) is None:
-        #     is_valid.allowed, is_valid.disallowed = robots_txt.get_robots_txt(parsed.scheme+'://'+parsed.netloc)
-        #     # check if contains disallowed addr
-        #     for loc in is_valid.disallowed:
-        #         if loc in parsed.geturl():
-        #             valid_url = False
-        #             # check if contains allowed addr under disallowed
-        #             for locc in is_valid.allowed:
-        #                 if locc in parsed.geturl():
-        #                     valid_url = True
+        # # check if contains a robots.txt
+        # allowed, disallowed = robots_txt.get_robots_txt(parsed.scheme+'://'+parsed.netloc+'/')
+        # # check if contains disallowed addr
+        # for d in disallowed:
+        #     if d in parsed.geturl():
+        #         valid_url = False
+        #         # check if contains allowed addr under disallowed
+        #         for a in allowed:
+        #             if a in parsed.geturl():
+        #                 valid_url = True
 
         if not valid_url:
+            print(parsed.geturl())
             return valid_url
 
         if not re.match(
