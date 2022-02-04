@@ -66,9 +66,11 @@ def is_valid(url):
         for domain in DOMAIN_LIST:
             if domain in parsed.netloc:
                 valid_url = True
+                # check if it's a subdomain of ics.uci.edu domain
                 subDomain = parsed.netloc.lower()
                 if ".ics.uci.edu" in subDomain:
                     subDomains[subDomain] += 1
+        # pass dictionary that stores subdomains and counts to saveSubdomains function for saving
         subdomain.saveSubdomains(subDomains)
         # check if dangerous path is inside the url
         for path in AVOID_PATHS:
