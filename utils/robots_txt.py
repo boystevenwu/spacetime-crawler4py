@@ -17,4 +17,4 @@ def get_robots_txt(url):
     return list(), list()
 
 
-print(get_robots_txt("https://www.informatics.uci.edu"))
+# print(get_robots_txt("https://www.informatics.uci.edu"))

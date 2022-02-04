@@ -13,7 +13,7 @@ def scraper(url, resp):
         return list()
 
     links = extract_next_links(url, resp)
-    return [link for link in links if is_valid(link)]
+    return [link for link in links if is_valid(link, resp)]
 
 
 def extract_next_links(url, resp):
@@ -33,7 +33,7 @@ def extract_next_links(url, resp):
     # Parse the resp and extract links
     if resp.raw_response is not None:
         beautiful_soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
-
+        beautiful_soup.get_text()
         for url in beautiful_soup.find_all('a'):
             if url.get('href') is not None:
                 urls.append(url.get('href'))
@@ -41,7 +41,7 @@ def extract_next_links(url, resp):
     return urls
 
 
-def is_valid(url):
+def is_valid(url, resp):
     # Decide whether to crawl this url or not. 
     # If you decide to crawl it, return True; otherwise return False.
     # There are already some conditions that return False.
@@ -65,16 +65,16 @@ def is_valid(url):
             if path in parsed.path:
                 valid_url = False
         # check if contains a robots.txt
-        if (parsed.path and parsed.fragment and parsed.params and parsed.query) is None:
-            is_valid.allowed, is_valid.disallowed = robots_txt.get_robots_txt(parsed.scheme+'://'+parsed.netloc)
-            # check if contains disallowed addr
-            for loc in is_valid.disallowed:
-                if loc in parsed.geturl():
-                    valid_url = False
-                    # check if contains allowed addr under disallowed
-                    for locc in is_valid.allowed:
-                        if locc in parsed.geturl():
-                            valid_url = True
+        # if (parsed.path and parsed.fragment and parsed.params and parsed.query) is None:
+        #     is_valid.allowed, is_valid.disallowed = robots_txt.get_robots_txt(parsed.scheme+'://'+parsed.netloc)
+        #     # check if contains disallowed addr
+        #     for loc in is_valid.disallowed:
+        #         if loc in parsed.geturl():
+        #             valid_url = False
+        #             # check if contains allowed addr under disallowed
+        #             for locc in is_valid.allowed:
+        #                 if locc in parsed.geturl():
+        #                     valid_url = True
 
         if not valid_url:
             return valid_url
@@ -103,5 +103,5 @@ def is_valid(url):
         print("TypeError for ", parsed)
         raise
 
-is_valid.allowed = list()
-is_valid.disallowed = list()
+# is_valid.allowed = list()
+# is_valid.disallowed = list()
