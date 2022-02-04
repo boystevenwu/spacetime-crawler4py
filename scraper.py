@@ -2,9 +2,14 @@ import re
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 from utils import robots_txt
+from utils import token
+from collections import defaultdict #ADD
+from utils import SaveSub #ADD
 
 count = 0
 unique_urls = list()
+part_b_url = ''
+subDomains = defaultdict(int) #ADD
 
 
 def scraper(url, resp):
@@ -13,7 +18,7 @@ def scraper(url, resp):
         return list()
 
     links = extract_next_links(url, resp)
-    return [link for link in links if is_valid(link, resp)]
+    return [link for link in links if is_valid(link)]
 
 
 def extract_next_links(url, resp):
@@ -33,16 +38,19 @@ def extract_next_links(url, resp):
     # Parse the resp and extract links
     if resp.raw_response is not None:
         beautiful_soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
-        beautiful_soup.get_text()
+        text = beautiful_soup.get_text().lower()
+        part_b = token.tokenize(text, url)
+        top_fifty = token.computeWordFrequencies(part_b)
+
         for url in beautiful_soup.find_all('a'):
             if url.get('href') is not None:
                 urls.append(url.get('href'))
 
-    return urls
+        return urls
 
 
-def is_valid(url, resp):
-    # Decide whether to crawl this url or not. 
+def is_valid(url):
+    # Decide whether to crawl this url or not.
     # If you decide to crawl it, return True; otherwise return False.
     # There are already some conditions that return False.
 
@@ -60,6 +68,10 @@ def is_valid(url, resp):
         for domain in DOMAIN_LIST:
             if domain in parsed.netloc:
                 valid_url = True
+                subDomain = parsed.netloc.lower() #ADD
+                if ".ics.uci.edu" in subDomain: #ADD
+                    subDomains[subDomain] += 1 #ADD
+        SaveSub.saveSubdomains(subDomains)#ADD
         # check if dangerous path is inside the url
         for path in AVOID_PATHS:
             if path in parsed.path:
@@ -102,6 +114,3 @@ def is_valid(url, resp):
     except TypeError:
         print("TypeError for ", parsed)
         raise
-
-# is_valid.allowed = list()
-# is_valid.disallowed = list()
