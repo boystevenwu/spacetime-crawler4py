@@ -4,11 +4,9 @@ from bs4 import BeautifulSoup
 from utils import robots_txt
 from utils import token
 from collections import defaultdict
-from utils import SaveSub
+from utils import subdomain
 
-count = 0
 unique_urls = list()
-part_b_url = ''
 subDomains = defaultdict(int)
 
 
@@ -71,7 +69,7 @@ def is_valid(url):
                 subDomain = parsed.netloc.lower()
                 if ".ics.uci.edu" in subDomain:
                     subDomains[subDomain] += 1
-        SaveSub.saveSubdomains(subDomains)
+        subdomain.saveSubdomains(subDomains)
         # check if dangerous path is inside the url
         for path in AVOID_PATHS:
             if path in parsed.path:
