@@ -86,7 +86,7 @@ def is_valid(url):
         #                 valid_url = True
 
         if not valid_url:
-            print(parsed.geturl())
+#             print(parsed.geturl())
             return valid_url
 
         if not re.match(
