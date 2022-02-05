@@ -16,7 +16,6 @@ def scraper(url, resp):
         return list()
 
     links = extract_next_links(url, resp)
-    #return [link for link in links if is_valid(link)]
     return links
 
 
@@ -35,7 +34,7 @@ def extract_next_links(url, resp):
     urls = list()
 
     # Parse the resp and extract links
-    if resp.raw_response is not None and is_valid(url): 
+    if resp.raw_response is not None and is_valid(url):
         beautiful_soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
         text = beautiful_soup.get_text().lower()
         part_b = token.tokenize(text, url)
@@ -45,7 +44,7 @@ def extract_next_links(url, resp):
             if url.get('href') is not None:
                 urls.append(url.get('href'))
 
-        return urls
+    return urls
 
 
 def is_valid(url):
@@ -77,19 +76,19 @@ def is_valid(url):
         for path in AVOID_PATHS:
             if path in parsed.path:
                 valid_url = False
-        # # check if contains a robots.txt
-        # allowed, disallowed = robots_txt.get_robots_txt(parsed.scheme+'://'+parsed.netloc+'/')
-        # # check if contains disallowed addr
-        # for d in disallowed:
-        #     if d in parsed.geturl():
-        #         valid_url = False
-        #         # check if contains allowed addr under disallowed
-        #         for a in allowed:
-        #             if a in parsed.geturl():
-        #                 valid_url = True
+        # check if contains a robots.txt
+        allowed, disallowed = robots_txt.get_robots_txt(parsed.scheme+'://'+parsed.netloc+'/')
+        # check if contains disallowed addr
+        for d in disallowed:
+            if d in parsed.geturl():
+                valid_url = False
+                # check if contains allowed addr under disallowed
+                for a in allowed:
+                    if a in parsed.geturl():
+                        valid_url = True
 
         if not valid_url:
-#             print(parsed.geturl())
+            print(parsed.geturl())
             return valid_url
 
         if not re.match(
@@ -98,7 +97,7 @@ def is_valid(url):
                 + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
                 + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"
                 + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
-                + r"|epub|dll|cnf|tgz|sha1|txt"
+                + r"|epub|dll|cnf|tgz|sha1"
                 + r"|thmx|mso|arff|rtf|jar|csv"
                 + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower()):
             url_body = (parsed.scheme + parsed.netloc + parsed.path).lower()
